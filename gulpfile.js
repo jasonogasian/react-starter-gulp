@@ -14,27 +14,12 @@ var path = {
   HTML: 'src/index.html',
   MINIFIED_OUT: 'main.min.js',
   OUT: 'main.js',
-  DEST_SRC: 'build/src',
-  DEST_BUILD: 'build/scripts',
-  DEST: 'build',
+  RELEASE: 'release',
+  DEV: 'build',
+  DEST_DEV: 'src/',
+  DEST_RELEASE: 'scripts/',
   ENTRY_POINT: './src/js/App.js'
 };
-
-
-// Copy HTML to DEST
-gulp.task('copy', function(){
-  gulp.src(path.HTML)
-    .pipe(gulp.dest(path.DEST));
-});
-
-// Copy HTML to DEST and point to the compiled JS in the build directory
-gulp.task('replaceHTMLsrc', function(){
-  gulp.src(path.HTML)
-    .pipe(htmlreplace({
-      'js': 'src/' + path.OUT
-    }))
-    .pipe(gulp.dest(path.DEST));
-});
 
 
 //
@@ -42,6 +27,16 @@ gulp.task('replaceHTMLsrc', function(){
 //
 gulp.task('default', ['watch']);
 
+// Copy HTML to DEST and point to the compiled JS in the build directory
+gulp.task('replaceHTMLsrc', function(){
+  gulp.src(path.HTML)
+    .pipe(htmlreplace({
+      'js': path.DEST_DEV + path.OUT
+    }))
+    .pipe(gulp.dest(path.DEV));
+});
+
+// Transform JSX and bundle on file changes
 gulp.task('watch', ['replaceHTMLsrc'], function() {
   gulp.watch(path.HTML, ['replaceHTMLsrc']);
 
@@ -57,26 +52,46 @@ gulp.task('watch', ['replaceHTMLsrc'], function() {
   return watcher.on('update', function () {
     watcher.bundle()	// Concat JS into one file and resolve the requires
       .pipe(source(path.OUT))
-      .pipe(gulp.dest(path.DEST_SRC))
+      .pipe(gulp.dest(path.DEV + '/' + path.DEST_DEV))
       console.log('Updated');
   })
   	// Execute the first time without an update
     .bundle()
     .pipe(source(path.OUT))
-    .pipe(gulp.dest(path.DEST_SRC));
+    .pipe(gulp.dest(path.DEV + '/' + path.DEST_DEV));
 });
 
 
 //
 // Release Tasks
 //
+gulp.task('release', ['replaceHTMLmin', 'build']);
 
+// Copy HTML to DEST and point to the compiled JS in the build directory
+gulp.task('replaceHTMLmin', function(){
+  gulp.src(path.HTML)
+    .pipe(htmlreplace({
+      'js': path.DEST_RELEASE + path.MINIFIED_OUT
+    }))
+    .pipe(gulp.dest(path.RELEASE));
+});
+
+gulp.task('build', function(){
+  browserify({
+    entries: [path.ENTRY_POINT],
+    transform: [reactify]
+  })
+    .bundle()
+    .pipe(source(path.MINIFIED_OUT))
+    .pipe(streamify(uglify()))
+    .pipe(gulp.dest(path.RELEASE + '/' + path.DEST_RELEASE));
+});
 
 
 //
 // Cleanup
 //
 gulp.task('clean', function () {
-	return gulp.src(path.DEST, {read: false})
+	return gulp.src(path.DEV, {read: false})
 		.pipe(clean());
 });

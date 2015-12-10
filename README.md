@@ -23,9 +23,11 @@ This Project uses gulp as a build tool to transpile JSX in JavaScript as well as
 to create our production build.
 
 #### Development Tasks:
-* Transpile JSX into JS and save the output file into a dist/src folder.
-* Copy index.html from the src folder into the dist folder.
-* Watch for changes on JS or HTML files and do the above two steps again.
+* Resolve commonJS require statements (browserify)
+* Transpile JSX into JS and save the output file into a build/src folder.
+* Copy index.html from the src folder into the build folder.
+* Watch for changes on JS or HTML files and do the above steps again.
+* Create sourcemaps so that we can see our JS files in the debugger.
 
 ### Production Tasks:
 * Concat all JS files, minify the result, then output to build.js to the build 
