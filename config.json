@@ -1,10 +1,15 @@
 {
   "HTML": "src/index.html",
+  "STYLES": ["src/style/**/*.scss", "src/style/**/*.css"],
+  "SASS": "src/style/**/*.scss",
+
   "MINIFIED_OUT": "main.min.js",
   "OUT": "main.js",
-  "RELEASE": "release",
-  "DEV": "build",
-  "DEST_DEV": "src/",
-  "DEST_RELEASE": "scripts/",
+
+  "DEST_DEV": "build",
+  "DEST_RELEASE": "release",
+  "DEST_JS": "js/",
+  "DEST_CSS": "style/",
+
   "ENTRY_POINT": "./src/js/App.js"
 }

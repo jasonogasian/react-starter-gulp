@@ -1,7 +1,7 @@
 var Child = React.createClass({
   render: function(){
     return (
-      <div>
+      <div className="child">
         and this is the <b>{this.props.name}</b>.
       </div>
     )

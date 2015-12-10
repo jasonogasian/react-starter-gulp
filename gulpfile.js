@@ -7,9 +7,8 @@ var watchify = require('watchify');					// Only update changed files
 var reactify = require('reactify');					// JSX -> JS transformation
 var streamify = require('gulp-streamify');
 var clean = require('gulp-clean');
+var sass = require('gulp-sass');
 var config = require('./config');
-
-
 
 
 //
@@ -21,14 +20,22 @@ gulp.task('default', ['watch']);
 gulp.task('replaceHTMLsrc', function(){
   gulp.src(config.HTML)
     .pipe(htmlreplace({
-      'js': config.DEST_DEV + config.OUT
+      'js': config.DEST_JS + config.OUT
     }))
-    .pipe(gulp.dest(config.DEV));
+    .pipe(gulp.dest(config.DEST_DEV));
+});
+
+// SASS compilation
+gulp.task('sass', function () {
+  gulp.src(config.SASS)
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_CSS));
 });
 
 // Transform JSX and bundle on file changes
-gulp.task('watch', ['replaceHTMLsrc'], function() {
+gulp.task('watch', ['sass', 'replaceHTMLsrc'], function() {
   gulp.watch(config.HTML, ['replaceHTMLsrc']);
+  gulp.watch(config.STYLES, ['sass']);
 
   // Use watchify with browserify so that only changed files are updated. FASTER
   var watcher  = watchify(browserify({
@@ -38,32 +45,38 @@ gulp.task('watch', ['replaceHTMLsrc'], function() {
     cache: {}, packageCache: {}, fullPaths: true // Required junk (ignore)
   }));
 
-    console.log('Initial Update');
   return watcher.on('update', function () {
     watcher.bundle()	// Concat JS into one file and resolve the requires
       .pipe(source(config.OUT))
-      .pipe(gulp.dest(config.DEV + '/' + config.DEST_DEV))
+      .pipe(gulp.dest(config.DEST_DEV + '/') + config.DEST_JS)
       console.log('Updated');
   })
   	// Execute the first time without an update
     .bundle()
     .pipe(source(config.OUT))
-    .pipe(gulp.dest(config.DEV + '/' + config.DEST_DEV));
+    .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_JS));
 });
 
 
 //
 // Release Tasks
 //
-gulp.task('release', ['replaceHTMLmin', 'build']);
+gulp.task('release', ['replaceHTMLmin', 'sass', 'build']);
 
 // Copy HTML to DEST and point to the compiled JS in the build directory
 gulp.task('replaceHTMLmin', function(){
   gulp.src(config.HTML)
     .pipe(htmlreplace({
-      'js': config.DEST_RELEASE + config.MINIFIED_OUT
+      'js': config.DEST_JS + config.MINIFIED_OUT
     }))
-    .pipe(gulp.dest(config.RELEASE));
+    .pipe(gulp.dest(config.DEST_RELEASE));
+});
+
+// SASS compilation
+gulp.task('sass', function () {
+  gulp.src(config.SASS)
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest(config.DEST_RELEASE + '/' + config.DEST_CSS));
 });
 
 gulp.task('build', function(){
@@ -74,7 +87,7 @@ gulp.task('build', function(){
     .bundle()
     .pipe(source(config.MINIFIED_OUT))
     .pipe(streamify(uglify()))
-    .pipe(gulp.dest(config.RELEASE + '/' + config.DEST_RELEASE));
+    .pipe(gulp.dest(config.DEST_RELEASE + '/' + config.DEST_JS));
 });
 
 
@@ -82,6 +95,6 @@ gulp.task('build', function(){
 // Cleanup
 //
 gulp.task('clean', function () {
-	return gulp.src(config.DEV, {read: false})
+	return gulp.src(config.DEST_DEV, {read: false})
 		.pipe(clean());
 });

@@ -3,8 +3,8 @@ var Child = require('./Child');
 var Parent = React.createClass({
   render: function(){
     return (
-      <div>
-        <div> This is the parent container. </div>
+      <div className="wrapper">
+        <div className="parent"> This is the parent container. </div>
         <Child name="child"/>
       </div>
     )
