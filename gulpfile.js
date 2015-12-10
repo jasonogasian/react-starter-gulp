@@ -8,6 +8,7 @@ var reactify = require('reactify');					// JSX -> JS transformation
 var streamify = require('gulp-streamify');
 var clean = require('gulp-clean');
 var sass = require('gulp-sass');
+var sourcemaps = require('gulp-sourcemaps');
 var config = require('./config');
 
 
@@ -26,16 +27,18 @@ gulp.task('replaceHTMLsrc', function(){
 });
 
 // SASS compilation
-gulp.task('sass', function () {
+gulp.task('sassDev', function () {
   gulp.src(config.SASS)
-    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.init())
+      .pipe(sass())
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_CSS));
 });
 
 // Transform JSX and bundle on file changes
-gulp.task('watch', ['sass', 'replaceHTMLsrc'], function() {
+gulp.task('watch', ['sassDev', 'replaceHTMLsrc'], function() {
   gulp.watch(config.HTML, ['replaceHTMLsrc']);
-  gulp.watch(config.STYLES, ['sass']);
+  gulp.watch(config.STYLES, ['sassDev']);
 
   // Use watchify with browserify so that only changed files are updated. FASTER
   var watcher  = watchify(browserify({
