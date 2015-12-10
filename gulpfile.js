@@ -30,7 +30,7 @@ gulp.task('replaceHTMLsrc', function(){
 gulp.task('sassDev', function () {
   gulp.src(config.SASS)
     .pipe(sourcemaps.init())
-      .pipe(sass())
+      .pipe(sass().on('error', sass.logError))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_CSS));
 });
