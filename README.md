@@ -6,7 +6,10 @@ A gulp-powered ReactJs starter project inspired by [this tutorial](http://tylerm
 	* [Node Installer](https://nodejs.org/en/download/)
 	* With Homebrew (OSX) - `brew install node`
 2. `npm install`
-3. How this project was created (*you don't need to do this*):
+3. Build:
+	* Development (watch for changes) - `gulp`
+	* Production build - `gulp release'
+4. How this project was created (*you don't need to do this*):
 	* Install gulp globally - `npm install --global gulp`
 	* `npm init`
 	* `npm install --save-dev gulp`
@@ -27,5 +30,5 @@ to create our production build.
 ### Production Tasks:
 * Concat all JS files, minify the result, then output to build.js to the build 
 folder inside the dist folder.
-* Replace all <script> tags in index.html with one <script> which references the 
+* Replace all \<script\> tags in index.html with one \<script\> which references the 
 new minified build.js file

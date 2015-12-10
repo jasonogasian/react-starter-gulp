@@ -26,6 +26,7 @@
   "homepage": "https://github.com/jasonogasian/react-starter-gulp",
   "devDependencies": {
     "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.6.0",
     "gulp-html-replace": "^1.5.5",
     "gulp-react": "^3.1.0",
