@@ -1,67 +1,76 @@
 var gulp = require('gulp');
-var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var react = require('gulp-react');
 var htmlreplace = require('gulp-html-replace');
+var source = require('vinyl-source-stream');
+var browserify = require('browserify');			// Require JS files, run transforms
+var watchify = require('watchify');					// Only update changed files
+var reactify = require('reactify');					// JSX -> JS transformation
+var streamify = require('gulp-streamify');
 var clean = require('gulp-clean');
+
 
 // Source and destination path definitions for gulp tasks
 var path = {
   HTML: 'src/index.html',
-  ALL: ['src/js/*.js', 'src/js/**/*.js', 'src/index.html'],
-  JS: ['src/js/*.js', 'src/js/**/*.js'],
   MINIFIED_OUT: 'main.min.js',
+  OUT: 'main.js',
   DEST_SRC: 'build/src',
   DEST_BUILD: 'build/scripts',
-  DEST: 'build'
+  DEST: 'build',
+  ENTRY_POINT: './src/js/App.js'
 };
 
-//
-// Development tasks
-//
-gulp.task('default', ['initial', 'watch']);
-gulp.task('initial', ['transform', 'copy']);
 
-// Transpile JSX into JS
-gulp.task('transform', function(){
-  gulp.src(path.JS)
-    .pipe(react())
-    .pipe(gulp.dest(path.DEST_SRC));
-});
-
-// COPY HTML to DEST
+// Copy HTML to DEST
 gulp.task('copy', function(){
   gulp.src(path.HTML)
     .pipe(gulp.dest(path.DEST));
 });
 
-// Watch for changes and run development tasks
-gulp.task('watch', function(){
-  gulp.watch(path.ALL, ['transform', 'copy']);
+// Copy HTML to DEST and point to the compiled JS in the build directory
+gulp.task('replaceHTMLsrc', function(){
+  gulp.src(path.HTML)
+    .pipe(htmlreplace({
+      'js': 'src/' + path.OUT
+    }))
+    .pipe(gulp.dest(path.DEST));
+});
+
+
+//
+// Development Tasks
+//
+gulp.task('default', ['watch']);
+
+gulp.task('watch', ['replaceHTMLsrc'], function() {
+  gulp.watch(path.HTML, ['replaceHTMLsrc']);
+
+  // Use watchify with browserify so that only changed files are updated. FASTER
+  var watcher  = watchify(browserify({
+    entries: [path.ENTRY_POINT],  // Browserify will traverse to sub-files!
+    transform: [reactify],				// JSX->JS
+    debug: true,									// User source maps for transformed code (JSX)
+    cache: {}, packageCache: {}, fullPaths: true // Required junk (ignore)
+  }));
+
+    console.log('Initial Update');
+  return watcher.on('update', function () {
+    watcher.bundle()	// Concat JS into one file and resolve the requires
+      .pipe(source(path.OUT))
+      .pipe(gulp.dest(path.DEST_SRC))
+      console.log('Updated');
+  })
+  	// Execute the first time without an update
+    .bundle()
+    .pipe(source(path.OUT))
+    .pipe(gulp.dest(path.DEST_SRC));
 });
 
 
 //
 // Release Tasks
 //
-gulp.task('release', ['clean', 'replaceHTML', 'build']);
 
-gulp.task('build', function(){
-  gulp.src(path.JS)
-    .pipe(react())
-    .pipe(concat(path.MINIFIED_OUT))
-    .pipe(uglify(path.MINIFIED_OUT))
-    .pipe(gulp.dest(path.DEST_BUILD));
-});
-
-// Replace <script> tags with just one tag in HTML
-gulp.task('replaceHTML', function(){
-  gulp.src(path.HTML)
-    .pipe(htmlreplace({
-      'js': 'scripts/' + path.MINIFIED_OUT // Matches the comment in the HTML file
-    }))
-    .pipe(gulp.dest(path.DEST));
-});
 
 
 //
