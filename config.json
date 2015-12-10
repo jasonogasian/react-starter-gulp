@@ -1,0 +1,10 @@
+{
+  "HTML": "src/index.html",
+  "MINIFIED_OUT": "main.min.js",
+  "OUT": "main.js",
+  "RELEASE": "release",
+  "DEV": "build",
+  "DEST_DEV": "src/",
+  "DEST_RELEASE": "scripts/",
+  "ENTRY_POINT": "./src/js/App.js"
+}
