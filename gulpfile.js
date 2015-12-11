@@ -10,6 +10,25 @@ var clean = require('gulp-clean');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 var config = require('./config');
+var server = require('gulp-server-livereload');
+
+
+//
+// Web Server
+//
+gulp.task('serve', ['default'], function() {
+  gulp.src(config.DEST_DEV)
+    .pipe(server({
+      livereload: true,
+      directoryListing: false,
+      open: true,
+      https: config.SERVER_HTTPS,
+      port: config.SERVER_PORT,
+      host: config.SERVER_HOSTNAME,
+      defaultFile: config.SERVER_DEFAULT,
+      log: config.SERVER_LOGLEVEL // info, debug
+    }));
+});
 
 
 //
@@ -55,7 +74,7 @@ gulp.task('watch', ['sassDev', 'replaceHTMLsrc'], function() {
     })	
       .pipe(source(config.OUT))
       .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_JS))
-      console.log(ew Date().toTimeString() + ': Updated');
+      console.log(new Date().toTimeString() + ': Updated');
   })
   	// Execute the first time without an update
     .bundle().on('error', function (err) {

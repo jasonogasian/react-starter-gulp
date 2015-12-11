@@ -3,6 +3,12 @@
   "STYLES": ["src/style/**/*.scss", "src/style/**/*.css"],
   "SASS": "src/style/**/*.scss",
 
+  "SERVER_HTTPS": false,
+  "SERVER_PORT": 8000,
+  "SERVER_HOSTNAME": "localhost",
+  "SERVER_DEFAULT": "index.html",
+  "SERVER_LOGLEVEL": "info",
+
   "MINIFIED_OUT": "main.min.js",
   "OUT": "main.js",
 
