@@ -51,7 +51,7 @@ gulp.task('watch', ['sassDev', 'replaceHTMLsrc'], function() {
   return watcher.on('update', function () {
     watcher.bundle()	// Concat JS into one file and resolve the requires
       .pipe(source(config.OUT))
-      .pipe(gulp.dest(config.DEST_DEV + '/') + config.DEST_JS)
+      .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_JS))
       console.log('Updated');
   })
   	// Execute the first time without an update
