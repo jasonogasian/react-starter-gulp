@@ -49,13 +49,19 @@ gulp.task('watch', ['sassDev', 'replaceHTMLsrc'], function() {
   }));
 
   return watcher.on('update', function () {
-    watcher.bundle()	// Concat JS into one file and resolve the requires
+    watcher.bundle().on('error', function (err) { // Concat JS into one file and resolve the requires
+      console.log(err.toString());
+      this.emit("end");
+    })	
       .pipe(source(config.OUT))
       .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_JS))
-      console.log('Updated');
+      console.log(ew Date().toTimeString() + ': Updated');
   })
   	// Execute the first time without an update
-    .bundle()
+    .bundle().on('error', function (err) {
+      console.log(err.toString());
+      this.emit("end");
+    })
     .pipe(source(config.OUT))
     .pipe(gulp.dest(config.DEST_DEV + '/' + config.DEST_JS));
 });
@@ -87,7 +93,10 @@ gulp.task('build', function(){
     entries: [config.ENTRY_POINT],
     transform: [reactify]
   })
-    .bundle()
+    .bundle().on('error', function (err) {
+      console.log(err.toString());
+      this.emit("end");
+    })
     .pipe(source(config.MINIFIED_OUT))
     .pipe(streamify(uglify()))
     .pipe(gulp.dest(config.DEST_RELEASE + '/' + config.DEST_JS));
