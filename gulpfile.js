@@ -104,7 +104,7 @@ gulp.task('replaceHTMLmin', function(){
 // SASS compilation
 gulp.task('sass', function () {
   gulp.src(config.SASS)
-    .pipe(sass().on('error', sass.logError))
+    .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
     .pipe(gulp.dest(config.DEST_RELEASE + '/' + config.DEST_CSS));
 });
 
