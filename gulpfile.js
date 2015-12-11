@@ -2,9 +2,10 @@ var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var htmlreplace = require('gulp-html-replace');
 var source = require('vinyl-source-stream');
-var browserify = require('browserify');			// Require JS files, run transforms
-var watchify = require('watchify');					// Only update changed files
-var reactify = require('reactify');					// JSX -> JS transformation
+var browserify = require('browserify');	// Require JS files, run transforms
+var watchify = require('watchify');			// Only update changed files
+// var reactify = require('reactify');    // JSX -> JS transformation (minimal ES6)
+var babelify = require('babelify');			// JSX -> JS transformation + ES6 transform
 var streamify = require('gulp-streamify');
 var clean = require('gulp-clean');
 var sass = require('gulp-sass');
@@ -61,11 +62,11 @@ gulp.task('watch', ['sassDev', 'replaceHTMLsrc'], function() {
 
   // Use watchify with browserify so that only changed files are updated. FASTER
   var watcher  = watchify(browserify({
-    entries: [config.ENTRY_POINT],  // Browserify will traverse to sub-files!
-    transform: [reactify],				// JSX->JS
-    debug: true,									// User source maps for transformed code (JSX)
+    entries: [config.ENTRY_POINT], // Browserify will traverse to sub-files!
+    debug: true,									 // User source maps for transformed code (JSX)
     cache: {}, packageCache: {}, fullPaths: true // Required junk (ignore)
-  }));
+  })
+  .transform('babelify', {'presets': ['es2015', 'react']})); // JSX and ES6
 
   return watcher.on('update', function () {
     watcher.bundle().on('error', function (err) { // Concat JS into one file and resolve the requires
@@ -111,7 +112,7 @@ gulp.task('build', function(){
   browserify({
     entries: [config.ENTRY_POINT]
   })
-    .transform('reactify', {es6: true})
+    .transform('babelify', {presets: ["es2015", "react"]})
     .bundle().on('error', function (err) {
       console.log(err.toString());
       this.emit("end");
