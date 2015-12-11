@@ -109,9 +109,9 @@ gulp.task('sass', function () {
 
 gulp.task('build', function(){
   browserify({
-    entries: [config.ENTRY_POINT],
-    transform: [reactify]
+    entries: [config.ENTRY_POINT]
   })
+    .transform('reactify', {es6: true})
     .bundle().on('error', function (err) {
       console.log(err.toString());
       this.emit("end");
